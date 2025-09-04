@@ -4,14 +4,7 @@ export default function Home() {
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          alt="Next.js logo"
-          className="dark:invert"
-          height={38}
-          priority
-          src="/next.svg"
-          width={180}
-        />
+        <Image alt="Next.js logo" className="dark:invert" height={38} priority src="/next.svg" width={180} />
         <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
           <li className="mb-2 tracking-[-.01em]">
             Get started by editing{' '}
@@ -20,9 +13,7 @@ export default function Home() {
             </code>
             .
           </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
+          <li className="tracking-[-.01em]">Save and see your changes instantly.</li>
         </ol>
 
         <div className="flex gap-4 items-center flex-col sm:flex-row">
@@ -32,13 +23,7 @@ export default function Home() {
             rel="noopener noreferrer"
             target="_blank"
           >
-            <Image
-              alt="Vercel logomark"
-              className="dark:invert"
-              height={20}
-              src="/vercel.svg"
-              width={20}
-            />
+            <Image alt="Vercel logomark" className="dark:invert" height={20} src="/vercel.svg" width={20} />
             Deploy now
           </a>
           <a
@@ -58,13 +43,7 @@ export default function Home() {
           rel="noopener noreferrer"
           target="_blank"
         >
-          <Image
-            alt="File icon"
-            aria-hidden
-            height={16}
-            src="/file.svg"
-            width={16}
-          />
+          <Image alt="File icon" aria-hidden height={16} src="/file.svg" width={16} />
           Learn
         </a>
         <a
@@ -73,13 +52,7 @@ export default function Home() {
           rel="noopener noreferrer"
           target="_blank"
         >
-          <Image
-            alt="Window icon"
-            aria-hidden
-            height={16}
-            src="/window.svg"
-            width={16}
-          />
+          <Image alt="Window icon" aria-hidden height={16} src="/window.svg" width={16} />
           Examples
         </a>
         <a
@@ -88,13 +61,7 @@ export default function Home() {
           rel="noopener noreferrer"
           target="_blank"
         >
-          <Image
-            alt="Globe icon"
-            aria-hidden
-            height={16}
-            src="/globe.svg"
-            width={16}
-          />
+          <Image alt="Globe icon" aria-hidden height={16} src="/globe.svg" width={16} />
           Go to nextjs.org →
         </a>
       </footer>
