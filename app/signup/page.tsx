@@ -18,7 +18,7 @@ export default function Login() {
           </CardContent>
         </CardHeader>
         <div className="flex flex-col items-center space-y-3">
-          <Input className="w-2/3" placeholder="USERNAME" />
+          <Input className="w-2/3" placeholder="EMAIL" type="email" />
           <Input className="w-2/3" placeholder="PASSWORD" type="password" />
         </div>
         <Button type="submit" className="w-2/3 mx-auto font-semibold py-6">

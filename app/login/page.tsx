@@ -1,8 +1,21 @@
+'use client';
+
+import { useState } from 'react';
+
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
 export default function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const test = () => {
+    console.log(email);
+
+    // api 요청
+  };
+
   return (
     <main className="flex justify-between p-30 min-h-screen bg-pink-100">
       <div className="text-start">
@@ -17,8 +30,20 @@ export default function Login() {
           </CardContent>
         </CardHeader>
         <div className="flex flex-col items-center space-y-3">
-          <Input className="w-2/3" placeholder="USERNAME" />
-          <Input className="w-2/3" placeholder="PASSWORD" type="password" />
+          <Input
+            className="w-2/3"
+            placeholder="EMAIL"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <Input
+            className="w-2/3"
+            placeholder="PASSWORD"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
         </div>
         <Button type="submit" className="w-2/3 mx-auto font-semibold py-6">
           LOGIN
