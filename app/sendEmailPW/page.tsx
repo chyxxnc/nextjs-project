@@ -8,37 +8,38 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
-export default function Login() {
+export default function SendEmailPW() {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const supabase = createClient();
 
   const test = async () => {
-    console.log(email + ' ' + password);
+    console.log(email);
 
     // api 요청
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data: updatePW, error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.origin + '/resetPW',
+    });
 
     if (error) {
-      console.log('로그인 실패: ' + error.message);
+      console.log('비밀번호 변경 이메일 전송 실패: ' + error.message);
       alert(error.message);
     } else {
-      console.log('로그인 성공: ' + data);
-      redirect('/home');
+      console.log('비밀번호 변경 이메일 전송 성공: ' + updatePW);
+      alert('이메일이 전송되었습니다\n이메일에서 비밀번호를 바꿔주세요');
+      redirect('/login');
     }
   };
 
   return (
     <main className="flex justify-between p-30 min-h-screen bg-pink-100">
       <div className="text-start">
-        <h1 className="font-semibold text-[60px] pl-35 pt-20">Hey, Hello!</h1>
-        <p className="pl-35 text-[20px] leading-[35px]">Welcome to this app</p>
+        <h1 className="font-semibold text-[50px] pl-35 pt-20">Hey, Send Email!</h1>
       </div>
       <Card className="w-2/5 mr-35">
         <CardHeader>
-          <CardTitle className="text-center text-2xl pt-20">LOGIN</CardTitle>
+          <CardTitle className="text-center text-2xl pt-20">SEND EMAIL</CardTitle>
           <CardContent className="text-center text-sm leading-[45px]">
-            <p>로그인을 해주세요</p>
+            <p>이메일을 입력하면 비밀번호를 바꿀 수 있도록 메일이 전송됩니다</p>
           </CardContent>
         </CardHeader>
         <div className="flex flex-col items-center space-y-3">
@@ -49,20 +50,10 @@ export default function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <Input
-            className="w-2/3"
-            placeholder="PASSWORD"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
         </div>
         <Button onClick={test} className="w-2/3 mx-auto font-semibold py-6">
-          LOGIN
+          UPDATE
         </Button>
-        <a href="/signup" className="text-center text-sm">
-          회원가입 하러가기
-        </a>
       </Card>
     </main>
   );
