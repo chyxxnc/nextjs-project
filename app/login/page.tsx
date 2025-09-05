@@ -26,6 +26,22 @@ export default function Login() {
       console.log('로그인 성공: ' + data);
       redirect('/home');
     }
+
+    //   let isLoaiding = false;
+
+    //   try {
+    //     isLoaiding = true;
+    //     if (error) {
+    //       throw new Error(error.message);
+    //     } else {
+    //       console.log('로그인 성공: ' + data);
+    //       redirect('/home');
+    //     }
+    //   } catch (error) {
+    //     console.log(error);
+    //   } finally {
+    //     isLoaiding = false;
+    //   }
   };
 
   return (
