@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { createClient } from '@/utils/supabase/client';
+import { redirect } from 'next/navigation';
 
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -9,11 +11,21 @@ import { Button } from '@/components/ui/button';
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const supabase = createClient();
 
-  const test = () => {
-    console.log(email);
+  const test = async () => {
+    console.log(email + ' ' + password);
 
     // api 요청
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      console.log('로그인 실패: ' + error.message);
+      alert(error.message);
+    } else {
+      console.log('로그인 성공: ' + data);
+      redirect('/home');
+    }
   };
 
   return (
@@ -45,12 +57,12 @@ export default function Login() {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <Button type="submit" className="w-2/3 mx-auto font-semibold py-6">
+        <Button onClick={test} className="w-2/3 mx-auto font-semibold py-6">
           LOGIN
         </Button>
-        <a href="./signup" className="text-center text-sm pt-10">
-          회원가입 하러가기
-        </a>
+        <div className="text-center text-sm">
+          <a href="/findpw">비밀번호 찾기</a> | <a href="/signup">회원가입 하러가기</a>
+        </div>
       </Card>
     </main>
   );
