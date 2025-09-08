@@ -3,14 +3,37 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+
 import React, { useState } from 'react';
+import { createClient } from '@/utils/supabase/client';
 
 export default function AddImage() {
+  const supabase = createClient();
   const [imgSrc, setImgSrc] = useState('');
+  const [file, setFile] = useState<File | null>(null);
 
+  // 이미지를 supabase storage에 저장
+  const saveImageToStorage = async () => {
+    if (!file) {
+      alert('파일을 선택하세요');
+      return;
+    }
+
+    const fileName = `${file.name}`; // 파일명
+    const { data, error } = await supabase.storage.from('images').upload(`uploads/${fileName}`, file);
+
+    if (data) {
+      alert('업로드 성공: ' + data);
+    } else {
+      alert('업로드 실패: ' + error.message);
+    }
+  };
+
+  // 이미지 미리 보여주기
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      setFile(file);
       const reader = new FileReader();
       reader.onload = (e) => {
         setImgSrc(e.target?.result as string);
@@ -20,7 +43,7 @@ export default function AddImage() {
   };
 
   return (
-    <main className="flex justify-center items-start min-h-screen pt-30 bg-pink-100">
+    <main className="flex justify-center items-start min-h-screen pt-30 pb-30 bg-pink-100">
       <Card className="w-[550px]">
         <CardHeader>
           <CardTitle className="text-center text-2xl pt-10">ADD IMAGE</CardTitle>
@@ -33,7 +56,9 @@ export default function AddImage() {
           <Input className="w-full" type="file" accept="image/*" onChange={handleImageChange} />
           {imgSrc && <img src={imgSrc} alt="미리보기" className="w-full" />}
 
-          <Button className="w-full font-semibold py-6">ADD</Button>
+          <Button className="w-full font-semibold py-6" onClick={saveImageToStorage}>
+            ADD
+          </Button>
         </div>
         <a href="/home" className="text-center text-sm">
           돌아가기
