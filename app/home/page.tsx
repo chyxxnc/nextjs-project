@@ -7,8 +7,17 @@ import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
+type Image = {
+  id: number;
+  user_id: string;
+  image_path: string;
+  image_name: string;
+  created_at: string;
+};
+
 export default function Login() {
   const [email, setEmail] = useState('');
+  const [data, setData] = useState<Image[]>([]);
   const supabase = createClient();
 
   useEffect(() => {
@@ -23,9 +32,17 @@ export default function Login() {
         console.log('사용자 이메일 가져오기 성공');
         setEmail(user?.email ?? '');
       }
+
+      const { data: imagesData, error: imagesErr } = await supabase.from('images').select('*');
+      if (imagesErr) {
+        console.error('데이터 가져오기 실패: ', error);
+      } else {
+        console.log('데이터 가져오기 성공: ' + imagesData);
+        setData(imagesData as Image[]);
+      }
     };
     user();
-  });
+  }, []);
 
   const logout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -40,13 +57,13 @@ export default function Login() {
   return (
     <main className="flex justify-between p-30 min-h-screen bg-pink-100">
       <div className="text-start">
-        <h1 className="font-semibold text-[50px] pl-35 pt-20">Login Successful !</h1>
-        <p className="pl-35 text-[15px] leading-[35px]">{email}님 반값습니다!</p>
-        <a href="/sendEmailPW" className="text-center text-sm pl-35">
+        <h1 className="font-semibold text-[50px] pl-30 pt-20">Login Successful !</h1>
+        <p className="pl-30 text-[15px] leading-[35px]">{email}님 반값습니다!</p>
+        <a href="/sendEmailPW" className="text-center text-sm pl-30">
           비밀번호 변경하기
         </a>
         <br></br>
-        <Button onClick={logout} className="ml-35 mt-90">
+        <Button onClick={logout} className="ml-30 mt-90">
           logout
         </Button>
       </div>
@@ -66,13 +83,15 @@ export default function Login() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow>
-              <TableCell className="font-medium">INV001</TableCell>
-              <TableCell>Paid</TableCell>
-              <TableCell>Credit Card</TableCell>
-              <TableCell>Credit Card</TableCell>
-              <TableCell className="text-right">$250.00</TableCell>
-            </TableRow>
+            {data.map((item) => (
+              <TableRow key={item.id}>
+                <TableCell className="font-medium">{item.id}</TableCell>
+                <TableCell>{item.user_id}</TableCell>
+                <TableCell>{item.image_path}</TableCell>
+                <TableCell>{item.image_name}</TableCell>
+                <TableCell className="text-right">{item.created_at}</TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       </div>

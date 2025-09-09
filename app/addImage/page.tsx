@@ -4,13 +4,28 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 
 export default function AddImage() {
   const supabase = createClient();
   const [imgSrc, setImgSrc] = useState('');
   const [file, setFile] = useState<File | null>(null);
+  const [userId, setUserId] = useState('');
+
+  // 지금 로그인 되어있는 사람의 UID 가져오기
+  useEffect(() => {
+    const User = async () => {
+      const { data, error } = await supabase.auth.getUser();
+      if (data?.user) {
+        setUserId(data.user.id);
+      } else {
+        console.error('사용자 정보를 가져오지 못했습니다.', error);
+      }
+    };
+
+    User();
+  }, []);
 
   // 이미지를 supabase storage에 저장
   const saveImageToStorage = async () => {
@@ -27,6 +42,14 @@ export default function AddImage() {
     } else {
       alert('업로드 실패: ' + error.message);
     }
+
+    // DB 테이블에 저장
+    await supabase.from('images').insert({
+      user_id: userId,
+      image_path: `uploads/${fileName}`,
+      image_name: `${fileName}`,
+      created_at: new Date(),
+    });
   };
 
   // 이미지 미리 보여주기
