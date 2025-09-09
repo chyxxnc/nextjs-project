@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
+import { redirect } from 'next/navigation';
 
 export default function AddImage() {
   const supabase = createClient();
@@ -41,15 +42,23 @@ export default function AddImage() {
       alert('업로드 성공: ' + data);
     } else {
       alert('업로드 실패: ' + error.message);
+      return;
     }
 
     // DB 테이블에 저장
-    await supabase.from('images').insert({
+    const { data: dbData, error: dbErr } = await supabase.from('images').insert({
       user_id: userId,
       image_path: `uploads/${fileName}`,
       image_name: `${fileName}`,
       created_at: new Date(),
     });
+    if (dbErr) {
+      console.log('데이터 삽입 실패: ', dbErr);
+      return;
+    } else {
+      console.log('데이터 삽입 성공: ' + dbData);
+      redirect('/home');
+    }
   };
 
   // 이미지 미리 보여주기

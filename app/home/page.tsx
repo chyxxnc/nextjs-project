@@ -54,6 +54,7 @@ export default function Login() {
       redirect('/');
     }
   };
+
   return (
     <main className="flex justify-between p-30 min-h-screen bg-pink-100">
       <div className="text-start">
@@ -71,15 +72,15 @@ export default function Login() {
         <a href="/addImage" className="font-bold text-[15px] ml-[640px]">
           추가하기
         </a>
-        <Table className="w-[700px] mt-[20px] mr-[100px]">
+        <Table className="w-[700px] mt-[20px] mr-[100px] bg-gray-100 rounded-md">
           <TableCaption>A list of your images.</TableCaption>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[100px]">ID</TableHead>
-              <TableHead>USER_ID</TableHead>
-              <TableHead>IMAGE_PATH</TableHead>
-              <TableHead>IMAGE_NAME</TableHead>
-              <TableHead className="text-right">DATE</TableHead>
+              <TableHead className="w-[100px] font-bold">ID</TableHead>
+              <TableHead className="font-bold">USER_ID</TableHead>
+              <TableHead className="font-bold">IMAGE_PATH</TableHead>
+              <TableHead className="font-bold">IMAGE_NAME</TableHead>
+              <TableHead className="text-right font-bold">DATE</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -88,7 +89,9 @@ export default function Login() {
                 <TableCell className="font-medium">{item.id}</TableCell>
                 <TableCell>{item.user_id}</TableCell>
                 <TableCell>{item.image_path}</TableCell>
-                <TableCell>{item.image_name}</TableCell>
+                <TableCell>
+                  <a href={`/detail/${item.id}`}>{item.image_name}</a>
+                </TableCell>
                 <TableCell className="text-right">{item.created_at}</TableCell>
               </TableRow>
             ))}
