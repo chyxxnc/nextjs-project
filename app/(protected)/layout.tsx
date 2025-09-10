@@ -8,12 +8,11 @@ export default async function Layout({
 }>) {
   const supabase = await createServer();
 
-  const { data, error } = await supabase.auth.getSession();
+  try {
+    const { data, error } = await supabase.auth.getSession();
 
-  if (data?.session) {
-    console.log('로그인 되어있음');
-  } else {
-    console.log('로그인 되어있지 않음');
+    if (!data?.session || error) throw new Error('로그인 되어있지 않음');
+  } catch (error) {
     redirect('/login');
   }
 
