@@ -2,26 +2,32 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
-type Image = {
-  id: number;
+type Images = {
+  image_id: number;
   user_id: string;
-  image_path: string;
-  image_name: string;
+  title: string;
+  file_name: string;
   created_at: string;
 };
 
 export default function Login() {
   const [email, setEmail] = useState('');
-  const [data, setData] = useState<Image[]>([]);
+  const [data, setData] = useState<Images[]>([]);
   const supabase = createClient();
+  const router = useRouter();
 
   useEffect(() => {
-    const user = async () => {
+    user();
+    images();
+  }, []);
+
+  const user = async () => {
+    try {
       const {
         data: { user },
         error,
@@ -32,26 +38,37 @@ export default function Login() {
         console.log('사용자 이메일 가져오기 성공');
         setEmail(user?.email ?? '');
       }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
+  const images = async () => {
+    try {
       const { data: imagesData, error: imagesErr } = await supabase.from('images').select('*');
       if (imagesErr) {
-        console.error('데이터 가져오기 실패: ', error);
+        console.error('데이터 가져오기 실패: ', imagesErr);
       } else {
         console.log('데이터 가져오기 성공: ' + imagesData);
-        setData(imagesData as Image[]);
+        setData(imagesData as Images[]);
       }
-    };
-    user();
-  }, []);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const logout = async () => {
-    const { error } = await supabase.auth.signOut();
+    try {
+      const { error } = await supabase.auth.signOut();
 
-    if (error) console.log('로그아웃 실패: ' + error);
-    else {
-      console.log('로그아웃 성공');
-      alert('로그아웃 되었습니다');
-      redirect('/');
+      if (error) console.log('로그아웃 실패: ' + error);
+      else {
+        console.log('로그아웃 성공');
+        alert('로그아웃 되었습니다');
+        router.push('/');
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -76,21 +93,25 @@ export default function Login() {
           <TableCaption>A list of your images.</TableCaption>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[100px] font-bold">ID</TableHead>
+              <TableHead className="w-[100px] font-bold">IMAGE_ID</TableHead>
               <TableHead className="font-bold">USER_ID</TableHead>
-              <TableHead className="font-bold">IMAGE_PATH</TableHead>
-              <TableHead className="font-bold">IMAGE_NAME</TableHead>
+              <TableHead className="font-bold">TITLE</TableHead>
+              <TableHead className="font-bold">FILE_NAME</TableHead>
+              <TableHead className="font-bold">IMAGE</TableHead>
               <TableHead className="text-right font-bold">DATE</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {data.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell className="font-medium">{item.id}</TableCell>
+              <TableRow key={item.image_id}>
+                <TableCell className="font-medium">{item.image_id}</TableCell>
                 <TableCell>{item.user_id}</TableCell>
-                <TableCell>{item.image_path}</TableCell>
+                <TableCell>{item.title}</TableCell>
                 <TableCell>
-                  <a href={`/detail/${item.id}`}>{item.image_name}</a>
+                  <a href={`/detail/${item.image_id}`}>{item.file_name}</a>
+                </TableCell>
+                <TableCell>
+                  <img src={`${process.env.NEXT_PUBLIC_IMAGE_LINK}/uploads/${item?.file_name}`} alt="image" />
                 </TableCell>
                 <TableCell className="text-right">{item.created_at}</TableCell>
               </TableRow>

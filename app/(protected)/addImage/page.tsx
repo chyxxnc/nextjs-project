@@ -6,13 +6,15 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { redirect } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 
 export default function AddImage() {
   const supabase = createClient();
+  const router = useRouter();
   const [imgSrc, setImgSrc] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [userId, setUserId] = useState('');
+  const [title, setTitle] = useState('');
 
   // 지금 로그인 되어있는 사람의 UID 가져오기
   useEffect(() => {
@@ -28,36 +30,65 @@ export default function AddImage() {
     User();
   }, []);
 
-  // 이미지를 supabase storage에 저장
+  // 데이터 스토리지와 디비에 저장
   const saveImageToStorage = async () => {
     if (!file) {
       alert('파일을 선택하세요');
       return;
     }
 
-    const fileName = `${file.name}`; // 파일명
-    const { data, error } = await supabase.storage.from('images').upload(`uploads/${fileName}`, file);
+    const fileName = `${Date.now()}_${file.name}`; // 파일명
 
-    if (data) {
-      alert('업로드 성공: ' + data);
-    } else {
-      alert('업로드 실패: ' + error.message);
+    try {
+      // 이미지를 supabase storage에 저장
+      const { data, error } = await supabase.storage.from('images').upload(`uploads/${fileName}`, file);
+
+      if (!data || error) {
+        alert('업로드 실패: ' + error.message);
+        return;
+      } else {
+        alert('업로드 성공');
+      }
+    } catch (error) {
+      console.log(error);
       return;
     }
 
-    // DB 테이블에 저장
-    const { data: dbData, error: dbErr } = await supabase.from('images').insert({
-      user_id: userId,
-      image_path: `uploads/${fileName}`,
-      image_name: `${fileName}`,
-      created_at: new Date(),
-    });
-    if (dbErr) {
-      console.log('데이터 삽입 실패: ', dbErr);
-      return;
-    } else {
-      console.log('데이터 삽입 성공: ' + dbData);
-      redirect('/home');
+    // images DB 테이블에 저장
+    try {
+      const { data: imgDBData, error: imgDBErr } = await supabase
+        .from('images')
+        .insert({
+          user_id: userId,
+          title: title,
+          file_name: `${fileName}`,
+          created_at: new Date(),
+        })
+        .select();
+
+      if (imgDBErr) {
+        console.log('데이터 삽입 실패: ', imgDBErr);
+        return;
+      }
+
+      const imageID = imgDBData[0].image_id;
+
+      // image_versions DB 테이블에 저장
+      const { data: imgverDBData, error: imgverDBError } = await supabase.from('image_versions').insert({
+        image_id: imageID,
+        user_id: userId,
+        version_number: 0,
+        file_name: `${fileName}`,
+        file_path: `${process.env.NEXT_PUBLIC_IMAGE_LINK}/uploads/${fileName}`,
+        created_at: new Date(),
+      });
+
+      if (imgverDBError) {
+        console.log('데이터 삽입 실패: ' + imgverDBError);
+      }
+      router.push('/home');
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -80,11 +111,18 @@ export default function AddImage() {
         <CardHeader>
           <CardTitle className="text-center text-2xl pt-10">ADD IMAGE</CardTitle>
           <CardContent className="text-center text-sm leading-[45px]">
-            <p>이미지를 추가해주세요</p>
+            <p>이미지와 제목을 추가해주세요</p>
           </CardContent>
         </CardHeader>
 
         <div className="flex flex-col items-center space-y-4 px-10">
+          <Input
+            className="w-full"
+            type="text"
+            placeholder="제목을 입력하세요"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          ></Input>
           <Input className="w-full" type="file" accept="image/*" onChange={handleImageChange} />
           {imgSrc && <img src={imgSrc} alt="미리보기" className="w-full" />}
 
