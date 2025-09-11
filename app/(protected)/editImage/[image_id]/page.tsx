@@ -12,6 +12,7 @@ export default function EditImage() {
   const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
   const [imgUrl, setImgUrl] = useState<string | null>(null);
   const [image, setImage] = useState<fabric.Image | null>(null);
+  const [text, setText] = useState<fabric.IText | null>(null);
 
   // canvas 생성
   useEffect(() => {
@@ -111,13 +112,43 @@ export default function EditImage() {
   useEffect(() => {
     if (canvas) {
       const text = new fabric.IText('텍스트를 입력해주세요', {
-        top: 50,
-        left: 50,
         fontSize: 20,
+        fontFamily: 'Lato100',
+        fontWeight: '100',
       });
       canvas.add(text);
+      //canvas.centerObject(text);
+      setText(text);
     }
   }, [canvas]);
+
+  // 폰트 적용
+  const font = async (fontName: string) => {
+    if (!text) return;
+
+    switch (fontName) {
+      case 'Lato100':
+        text.set('fontFamily', 'Lato100');
+        text.set('fontWeight', '100');
+        break;
+      case 'Lato300':
+        text.set('fontFamily', 'Lato300');
+        text.set('fontWeight', '300');
+        break;
+      case 'Lato500':
+        text.set('fontFamily', 'Lato500');
+        text.set('fontWeight', '500');
+        break;
+      case 'Lato700':
+        text.set('fontFamily', 'Lato700');
+        text.set('fontWeight', '700');
+        break;
+      default:
+        break;
+    }
+
+    canvas?.renderAll();
+  };
 
   return (
     <main className="flex justify-center items-center min-h-screen bg-pink-100 space-x-30">
@@ -128,6 +159,13 @@ export default function EditImage() {
           <Button onClick={() => filter('Grayscale')}>Grayscale</Button>
           <Button onClick={() => filter('Sepia')}>Sepia</Button>
           <Button onClick={() => filter('Invert')}>Invert</Button>
+        </div>
+        <p className="text-sm mb-2 mt-[20px]">폰트</p>
+        <div className="flex space-x-2">
+          <Button onClick={() => font('Lato100')}>Lato100</Button>
+          <Button onClick={() => font('Lato300')}>Lato300</Button>
+          <Button onClick={() => font('Lato500')}>Lato500</Button>
+          <Button onClick={() => font('Lato700')}>Lato700</Button>
         </div>
       </div>
     </main>
