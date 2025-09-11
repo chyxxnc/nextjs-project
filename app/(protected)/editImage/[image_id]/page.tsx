@@ -4,12 +4,14 @@ import * as fabric from 'fabric';
 import { useParams } from 'next/navigation';
 import { useRef, useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
+import { Button } from '@/components/ui/button';
 
 export default function EditImage() {
   const canvasRef = useRef(null);
   const { image_id } = useParams();
   const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
   const [imgUrl, setImgUrl] = useState<string | null>(null);
+  const [image, setImage] = useState<fabric.Image | null>(null);
 
   // canvas 생성
   useEffect(() => {
@@ -61,6 +63,7 @@ export default function EditImage() {
           });
 
           const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+          setImage(img);
 
           img.set({
             scaleX: scale,
@@ -71,7 +74,6 @@ export default function EditImage() {
 
           canvas.add(img);
           canvas.centerObject(img); // 사진 가운데로
-          canvas.renderAll();
         } catch (error) {
           console.log(error);
         }
@@ -79,6 +81,31 @@ export default function EditImage() {
       addImage();
     }
   }, [canvas, imgUrl]);
+
+  // 필터 적용
+  const filter = async (filterName: string) => {
+    if (!image) return;
+    image.filters = [];
+    try {
+      switch (filterName) {
+        case 'Grayscale':
+          image.filters.push(new fabric.filters.Grayscale());
+          break;
+        case 'Sepia':
+          image.filters.push(new fabric.filters.Sepia());
+          break;
+        case 'Invert':
+          image.filters.push(new fabric.filters.Invert());
+          break;
+        default:
+          break;
+      }
+      image.applyFilters();
+      canvas?.renderAll();
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   // 텍스트 출력
   useEffect(() => {
@@ -93,8 +120,16 @@ export default function EditImage() {
   }, [canvas]);
 
   return (
-    <main className="flex justify-between p-30 min-h-screen bg-pink-100">
+    <main className="flex justify-center items-center min-h-screen bg-pink-100 space-x-30">
       <canvas style={{ border: '1px solid pink' }} ref={canvasRef} />
+      <div>
+        <p className="text-sm mb-2">필터</p>
+        <div className="flex space-x-2">
+          <Button onClick={() => filter('Grayscale')}>Grayscale</Button>
+          <Button onClick={() => filter('Sepia')}>Sepia</Button>
+          <Button onClick={() => filter('Invert')}>Invert</Button>
+        </div>
+      </div>
     </main>
   );
 }
