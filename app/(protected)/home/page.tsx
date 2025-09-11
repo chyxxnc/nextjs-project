@@ -86,7 +86,7 @@ export default function Login() {
         </Button>
       </div>
       <div className="mt-[40px]">
-        <a href="/addImage" className="font-bold text-[15px] ml-[640px]">
+        <a href="/addImage" className="font-bold text-[15px] ml-[910px]">
           추가하기
         </a>
         <Table className="w-[700px] mt-[20px] mr-[100px] bg-gray-100 rounded-md">

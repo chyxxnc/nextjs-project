@@ -33,9 +33,23 @@ export default function Detail() {
   }, [id, supabase]);
 
   return (
-    <main className="p-30 min-h-screen bg-pink-100">
-      <Table className="w-[700px] mt-[20px] mr-[100px] bg-gray-100 rounded-md">
+    <main className="p-30 min-h-screen bg-pink-100 flex flex-col items-center">
+      <div>
+        <a href="/home" className="text-sm text-center">
+          돌아가기
+        </a>{' '}
+        |{' '}
+        <a href={`/editImage/${imageData?.image_id}`} className="text-sm text-center">
+          수정하기
+        </a>
+      </div>
+      <p className="text-sm mt-[10px]">{imageData?.version_number} 번째 수정</p>
+      <Table className="w-[700px] mt-[20px] bg-gray-100 rounded-md mx-auto">
         <TableHeader>
+          <TableRow>
+            <TableHead className="w-[100px] font-bold">VERSION_ID</TableHead>
+            <TableCell className="font-medium">{imageData?.version_id}</TableCell>
+          </TableRow>
           <TableRow>
             <TableHead className="w-[100px] font-bold">IMAGE_ID</TableHead>
             <TableCell className="font-medium">{imageData?.image_id}</TableCell>
@@ -51,7 +65,7 @@ export default function Detail() {
           <TableRow>
             <TableHead className="w-[100px] font-bold">IMAGE</TableHead>
             <TableCell className="font-medium">
-              <img src={imageData?.file_path} />
+              <img src={imageData?.file_path} alt="image" />
             </TableCell>
           </TableRow>
           <TableRow>
