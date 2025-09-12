@@ -29,7 +29,7 @@ export default function EditImage() {
     return () => {
       newCanvas.dispose();
     };
-  }, []);
+  }, [image_id]);
 
   // supabase에서 사용자가 클릭한 image_id의 사진 가져오기
   useEffect(() => {
@@ -74,6 +74,7 @@ export default function EditImage() {
           });
 
           canvas.add(img);
+          canvas.sendObjectToBack(img);
           canvas.centerObject(img); // 사진 가운데로
         } catch (error) {
           console.log(error);
@@ -116,8 +117,10 @@ export default function EditImage() {
         fontFamily: 'Lato100',
         fontWeight: '100',
       });
+
       canvas.add(text);
-      //canvas.centerObject(text);
+      canvas.bringObjectToFront(text);
+      canvas.centerObject(text);
       setText(text);
     }
   }, [canvas]);
