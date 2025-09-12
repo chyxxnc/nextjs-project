@@ -129,27 +129,69 @@ export default function EditImage() {
   const font = async (fontName: string) => {
     if (!text) return;
 
+    let fontFamily = '';
+    let fontWeight = '';
+
     switch (fontName) {
       case 'Lato100':
-        text.set('fontFamily', 'Lato100');
-        text.set('fontWeight', '100');
+        fontFamily = 'Lato100';
+        fontWeight = '100';
         break;
       case 'Lato300':
-        text.set('fontFamily', 'Lato300');
-        text.set('fontWeight', '300');
+        fontFamily = 'Lato300';
+        fontWeight = '300';
         break;
       case 'Lato500':
-        text.set('fontFamily', 'Lato500');
-        text.set('fontWeight', '500');
+        fontFamily = 'Lato500';
+        fontWeight = '500';
         break;
       case 'Lato700':
-        text.set('fontFamily', 'Lato700');
-        text.set('fontWeight', '700');
+        fontFamily = 'Lato700';
+        fontWeight = '700';
         break;
       default:
         break;
     }
+    text.set('fontFamily', fontFamily);
+    text.set('fontWeight', fontWeight);
+    canvas?.renderAll();
+  };
 
+  // 텍스트 색상
+  const textColor = async (color: string) => {
+    if (!text) return;
+
+    let colorName = '';
+
+    switch (color) {
+      case 'black':
+        colorName = 'black';
+        break;
+      case 'red':
+        colorName = 'red';
+        break;
+      case 'pink':
+        colorName = 'pink';
+        break;
+      case 'white':
+        colorName = 'white';
+        break;
+      case 'purple':
+        colorName = 'purple';
+        break;
+      case 'blue':
+        colorName = 'blue';
+        break;
+      case 'yellow':
+        colorName = 'yellow';
+        break;
+      case 'green':
+        colorName = 'green';
+        break;
+      default:
+        break;
+    }
+    text?.set('fill', colorName);
     canvas?.renderAll();
   };
 
@@ -169,6 +211,17 @@ export default function EditImage() {
           <Button onClick={() => font('Lato300')}>Lato300</Button>
           <Button onClick={() => font('Lato500')}>Lato500</Button>
           <Button onClick={() => font('Lato700')}>Lato700</Button>
+        </div>
+        <p className="text-sm mb-2 mt-[20px]">텍스트 색상</p>
+        <div className="flex space-x-2">
+          <Button onClick={() => textColor('black')}>black</Button>
+          <Button onClick={() => textColor('red')}>red</Button>
+          <Button onClick={() => textColor('pink')}>pink</Button>
+          <Button onClick={() => textColor('white')}>white</Button>
+          <Button onClick={() => textColor('purple')}>purple</Button>
+          <Button onClick={() => textColor('blue')}>blue</Button>
+          <Button onClick={() => textColor('yellow')}>yellow</Button>
+          <Button onClick={() => textColor('green')}>green</Button>
         </div>
       </div>
     </main>
