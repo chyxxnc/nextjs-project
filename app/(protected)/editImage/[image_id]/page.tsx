@@ -201,9 +201,15 @@ export default function EditImage() {
       <div>
         <p className="text-sm mb-2">필터</p>
         <div className="flex space-x-2">
-          <Button onClick={() => filter('Grayscale')}>Grayscale</Button>
-          <Button onClick={() => filter('Sepia')}>Sepia</Button>
-          <Button onClick={() => filter('Invert')}>Invert</Button>
+          <Button onClick={() => filter('Grayscale')} className="bg-[#B5B5B5]">
+            Grayscale
+          </Button>
+          <Button onClick={() => filter('Sepia')} className="bg-[#FFFFCB] text-black">
+            Sepia
+          </Button>
+          <Button onClick={() => filter('Invert')} className="bg-[#3CD5D2]">
+            Invert
+          </Button>
         </div>
         <p className="text-sm mb-2 mt-[20px]">폰트</p>
         <div className="flex space-x-2">
@@ -214,14 +220,30 @@ export default function EditImage() {
         </div>
         <p className="text-sm mb-2 mt-[20px]">텍스트 색상</p>
         <div className="flex space-x-2">
-          <Button onClick={() => textColor('black')}>black</Button>
-          <Button onClick={() => textColor('red')}>red</Button>
-          <Button onClick={() => textColor('pink')}>pink</Button>
-          <Button onClick={() => textColor('white')}>white</Button>
-          <Button onClick={() => textColor('purple')}>purple</Button>
-          <Button onClick={() => textColor('blue')}>blue</Button>
-          <Button onClick={() => textColor('yellow')}>yellow</Button>
-          <Button onClick={() => textColor('green')}>green</Button>
+          <Button onClick={() => textColor('black')} className="bg-[#000000]">
+            black
+          </Button>
+          <Button onClick={() => textColor('red')} className="bg-[#FF0000]">
+            red
+          </Button>
+          <Button onClick={() => textColor('pink')} className="bg-[#FF00AE]">
+            pink
+          </Button>
+          <Button onClick={() => textColor('white')} className="bg-[#FFFFFF] text-black">
+            white
+          </Button>
+          <Button onClick={() => textColor('purple')} className="bg-[#C800FF]">
+            purple
+          </Button>
+          <Button onClick={() => textColor('blue')} className="bg-[#1100FF]">
+            blue
+          </Button>
+          <Button onClick={() => textColor('yellow')} className="bg-[#EEFF00] text-black">
+            yellow
+          </Button>
+          <Button onClick={() => textColor('green')} className="bg-[#00FF08]">
+            green
+          </Button>
         </div>
       </div>
     </main>
