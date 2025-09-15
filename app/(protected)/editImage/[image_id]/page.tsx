@@ -21,7 +21,7 @@ export default function EditImage() {
 
     const newCanvas = new fabric.Canvas(canvasRef.current, {
       width: 500,
-      height: 700,
+      height: 500,
     });
 
     setCanvas(newCanvas);
@@ -51,6 +51,7 @@ export default function EditImage() {
         console.log(error);
       }
     };
+    canvas?.renderAll();
     userImgData();
   }, [image_id]);
 
@@ -121,6 +122,7 @@ export default function EditImage() {
       canvas.add(text);
       canvas.bringObjectToFront(text);
       canvas.centerObject(text);
+      canvas?.renderAll();
       setText(text);
     }
   }, [canvas]);
@@ -195,6 +197,45 @@ export default function EditImage() {
     canvas?.renderAll();
   };
 
+  const editButton = async () => {
+    if (!canvas) return;
+
+    try {
+      const objects = canvas.getObjects();
+      let minX = Infinity,
+        minY = Infinity,
+        maxX = -Infinity,
+        maxY = -Infinity;
+
+      objects.forEach((obj) => {
+        if (!obj.visible) return; // 숨겨진 오브젝트 제외
+        const box = obj.getBoundingRect();
+        minX = Math.min(minX, box.left);
+        minY = Math.min(minY, box.top);
+        maxX = Math.max(maxX, box.left + box.width);
+        maxY = Math.max(maxY, box.top + box.height);
+      });
+
+      const width = maxX - minX;
+      const height = maxY - minY;
+
+      setTimeout(() => {
+        const imageDataUrl = canvas?.toDataURL({
+          format: 'png',
+          multiplier: 1,
+          left: minX,
+          top: minY,
+          width: width,
+          height: height,
+        });
+        if (!imageDataUrl) console.log('이미지 변환 실패');
+        else console.log(imageDataUrl);
+      }, 2000);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <main className="flex justify-center items-center min-h-screen bg-pink-100 space-x-30">
       <canvas style={{ border: '1px solid pink' }} ref={canvasRef} />
@@ -245,6 +286,9 @@ export default function EditImage() {
             green
           </Button>
         </div>
+        <Button className="mt-[300px]" onClick={editButton}>
+          수정하기
+        </Button>
       </div>
     </main>
   );
