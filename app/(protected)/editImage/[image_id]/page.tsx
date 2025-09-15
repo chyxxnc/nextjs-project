@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { useRef, useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { Button } from '@/components/ui/button';
+import { fileURLToPath } from 'url';
 
 export default function EditImage() {
   const canvasRef = useRef(null);
@@ -200,6 +201,8 @@ export default function EditImage() {
   const editButton = async () => {
     if (!canvas) return;
 
+    const supabase = createClient();
+
     try {
       const objects = canvas.getObjects();
       let minX = Infinity,
@@ -210,16 +213,16 @@ export default function EditImage() {
       objects.forEach((obj) => {
         if (!obj.visible) return; // 숨겨진 오브젝트 제외
         const box = obj.getBoundingRect();
-        minX = Math.min(minX, box.left);
-        minY = Math.min(minY, box.top);
-        maxX = Math.max(maxX, box.left + box.width);
-        maxY = Math.max(maxY, box.top + box.height);
+        minX = Math.min(minX, box.left); // 가장 왼쪽 좌표 찾기
+        minY = Math.min(minY, box.top); // 가장 위쪽 좌표 찾기
+        maxX = Math.max(maxX, box.left + box.width); // 가장 오른쪽 좌표 찾기
+        maxY = Math.max(maxY, box.top + box.height); // 가장 아래쪽 좌표 찾기
       });
 
       const width = maxX - minX;
       const height = maxY - minY;
 
-      setTimeout(() => {
+      setTimeout(async () => {
         const imageDataUrl = canvas?.toDataURL({
           format: 'png',
           multiplier: 1,
@@ -228,8 +231,23 @@ export default function EditImage() {
           width: width,
           height: height,
         });
+
         if (!imageDataUrl) console.log('이미지 변환 실패');
-        else console.log(imageDataUrl);
+        else {
+          console.log('이미지 변환 성공');
+
+          // base64를 blob으로 변환
+          const base64 = imageDataUrl.split(',')[1];
+          const blob = await (await fetch(`data:image/png;base64,${base64}`)).blob();
+
+          const fileName = `${Date.now()}_image.png`;
+
+          // edit_images storage에 저장
+          const { data: stImgData, error: stImgErr } = await supabase.storage
+            .from('edit_images')
+            .upload(`uploads/${fileName}`, blob);
+          if (stImgErr) console.log(stImgErr);
+        }
       }, 2000);
     } catch (error) {
       console.log(error);
