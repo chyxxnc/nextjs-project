@@ -4,6 +4,8 @@ import { createClient } from '@/utils/supabase/client';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Table, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { useQueryState } from 'nuqs';
 
 type Images = {
   version_id: number;
@@ -18,11 +20,15 @@ type Images = {
 export default function Detail() {
   const supabase = createClient();
   const { id } = useParams();
-  const [imageData, setImageData] = useState<Images | null>(null);
+  const [imageData, setImageData] = useState<Images[]>([]);
+  const [currentId, setCurrentId] = useQueryState('version_number', {
+    parse: (v) => parseInt(v || '0', 10),
+    serialize: (v) => String(v),
+  });
 
   useEffect(() => {
     const userData = async () => {
-      const { data, error } = await supabase.from('image_versions').select('*').eq('image_id', id).single();
+      const { data, error } = await supabase.from('image_versions').select('*').eq('image_id', id);
       if (error) console.error('특정 아이디의 값 가져오기 실패 ' + error);
       else {
         console.log('특정 아이디의 값 가져오기 성공 ' + data);
@@ -32,6 +38,8 @@ export default function Detail() {
     userData();
   }, [id, supabase]);
 
+  const selected = imageData[currentId ?? 0];
+
   return (
     <main className="p-30 min-h-screen bg-pink-100 flex flex-col items-center">
       <div>
@@ -39,41 +47,56 @@ export default function Detail() {
           돌아가기
         </a>{' '}
         |{' '}
-        <a href={`/editImage/${imageData?.image_id}`} className="text-sm text-center">
+        <a href={`/editImage/${selected?.image_id}`} className="text-sm text-center">
           수정하기
         </a>
       </div>
-      <p className="text-sm mt-[10px]">{imageData?.version_number} 번째 수정</p>
+      <p className="text-sm mt-[10px]">{selected?.version_number} 번째 수정</p>
       <Table className="w-[700px] mt-[20px] bg-gray-100 rounded-md mx-auto">
         <TableHeader>
           <TableRow>
             <TableHead className="w-[100px] font-bold">VERSION_ID</TableHead>
-            <TableCell className="font-medium">{imageData?.version_id}</TableCell>
+            <TableCell className="font-medium">{selected?.version_id}</TableCell>
           </TableRow>
           <TableRow>
             <TableHead className="w-[100px] font-bold">IMAGE_ID</TableHead>
-            <TableCell className="font-medium">{imageData?.image_id}</TableCell>
+            <TableCell className="font-medium">{selected?.image_id}</TableCell>
           </TableRow>
           <TableRow>
             <TableHead className="w-[100px] font-bold">USER_ID</TableHead>
-            <TableCell className="font-medium">{imageData?.user_id}</TableCell>
+            <TableCell className="font-medium">{selected?.user_id}</TableCell>
           </TableRow>
           <TableRow>
             <TableHead className="w-[100px] font-bold">FILE_NAME</TableHead>
-            <TableCell className="font-medium">{imageData?.file_name}</TableCell>
+            <TableCell className="font-medium">{selected?.file_name}</TableCell>
           </TableRow>
           <TableRow>
             <TableHead className="w-[100px] font-bold">IMAGE</TableHead>
             <TableCell className="font-medium">
-              <img src={imageData?.file_path} alt="image" />
+              <img src={selected?.file_path} alt="image" />
             </TableCell>
           </TableRow>
           <TableRow>
             <TableHead className="w-[100px] font-bold">DATE</TableHead>
-            <TableCell className="font-medium">{imageData?.created_at}</TableCell>
+            <TableCell className="font-medium">{selected?.created_at}</TableCell>
           </TableRow>
         </TableHeader>
       </Table>
+      <div className="mt-[10px]">
+        <Button
+          className="mr-[10px]"
+          onClick={() => setCurrentId((i) => Math.max((i ?? 0) - 1, 0))}
+          disabled={(currentId ?? 0) === 0}
+        >
+          이전
+        </Button>
+        <Button
+          onClick={() => setCurrentId((i) => Math.min((i ?? 0) + 1, imageData.length - 1))}
+          disabled={(currentId ?? 0) === imageData.length - 1}
+        >
+          다음
+        </Button>
+      </div>
     </main>
   );
 }

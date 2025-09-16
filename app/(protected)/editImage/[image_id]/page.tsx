@@ -5,7 +5,8 @@ import { useParams } from 'next/navigation';
 import { useRef, useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { Button } from '@/components/ui/button';
-import { fileURLToPath } from 'url';
+import { useQueryState } from 'nuqs';
+import { useRouter } from 'next/navigation';
 
 export default function EditImage() {
   const canvasRef = useRef(null);
@@ -14,6 +15,12 @@ export default function EditImage() {
   const [imgUrl, setImgUrl] = useState<string | null>(null);
   const [image, setImage] = useState<fabric.Image | null>(null);
   const [text, setText] = useState<fabric.IText | null>(null);
+  const [userId, setUserId] = useState('');
+  const [versionNumber, setVersionNumber] = useQueryState('version_number', {
+    parse: (v) => parseInt(v || '0', 10),
+    serialize: (v) => String(v),
+  });
+  const router = useRouter();
 
   // canvas 생성
   useEffect(() => {
@@ -39,8 +46,10 @@ export default function EditImage() {
       try {
         const { data: imgData, error: imgErr } = await supabase
           .from('image_versions')
-          .select('file_path')
+          .select('file_path, version_number')
           .eq('image_id', image_id)
+          .order('version_number', { ascending: false })
+          .limit(1)
           .single();
 
         if (!imgData || imgErr) {
@@ -48,6 +57,7 @@ export default function EditImage() {
           return;
         }
         setImgUrl(imgData.file_path);
+        setVersionNumber(imgData.version_number);
       } catch (error) {
         console.log(error);
       }
@@ -198,6 +208,24 @@ export default function EditImage() {
     canvas?.renderAll();
   };
 
+  // 사용자 아이디 가져오기
+  useEffect(() => {
+    const supabase = createClient();
+    const User = async () => {
+      try {
+        const { data, error } = await supabase.auth.getUser();
+        if (data?.user) {
+          setUserId(data.user.id);
+        } else {
+          console.error('사용자 정보를 가져오지 못했습니다.', error);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    User();
+  }, []);
+
   const editButton = async () => {
     if (!canvas) return;
 
@@ -247,7 +275,29 @@ export default function EditImage() {
             .from('edit_images')
             .upload(`uploads/${fileName}`, blob);
           if (stImgErr) console.log(stImgErr);
+
+          // 가장 최근 version_number 가져오기
+          const { data, error } = await supabase
+            .from('image_versions')
+            .select('version_number')
+            .eq('image_id', image_id)
+            .order('version_number', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          if (error) console.log(error);
+
+          // image_versions 테이블에 저장
+          const { data: dbImgData, error: dbImgErr } = await supabase.from('image_versions').insert({
+            image_id: image_id,
+            user_id: userId,
+            version_number: data?.version_number + 1,
+            file_name: `${fileName}`,
+            file_path: `${process.env.NEXT_PUBLIC_IMAGE_VERSION_LINK}/uploads/${fileName}`,
+            created_at: new Date(),
+          });
+          if (dbImgErr) console.log(dbImgErr);
         }
+        router.push(`/detail/${image_id}`);
       }, 2000);
     } catch (error) {
       console.log(error);
