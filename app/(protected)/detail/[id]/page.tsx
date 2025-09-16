@@ -55,18 +55,6 @@ export default function Detail() {
       <Table className="w-[700px] mt-[20px] bg-gray-100 rounded-md mx-auto">
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[100px] font-bold">VERSION_ID</TableHead>
-            <TableCell className="font-medium">{selected?.version_id}</TableCell>
-          </TableRow>
-          <TableRow>
-            <TableHead className="w-[100px] font-bold">IMAGE_ID</TableHead>
-            <TableCell className="font-medium">{selected?.image_id}</TableCell>
-          </TableRow>
-          <TableRow>
-            <TableHead className="w-[100px] font-bold">USER_ID</TableHead>
-            <TableCell className="font-medium">{selected?.user_id}</TableCell>
-          </TableRow>
-          <TableRow>
             <TableHead className="w-[100px] font-bold">FILE_NAME</TableHead>
             <TableCell className="font-medium">{selected?.file_name}</TableCell>
           </TableRow>
@@ -78,7 +66,17 @@ export default function Detail() {
           </TableRow>
           <TableRow>
             <TableHead className="w-[100px] font-bold">DATE</TableHead>
-            <TableCell className="font-medium">{selected?.created_at}</TableCell>
+            <TableCell className="font-medium">
+              {new Date(selected?.created_at).toLocaleString('ko-KR', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false,
+              })}
+            </TableCell>
           </TableRow>
         </TableHeader>
       </Table>

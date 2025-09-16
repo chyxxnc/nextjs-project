@@ -86,15 +86,13 @@ export default function Login() {
         </Button>
       </div>
       <div className="mt-[40px]">
-        <a href="/addImage" className="font-bold text-[15px] ml-[910px]">
+        <a href="/addImage" className="font-bold text-[15px] ml-[590px]">
           추가하기
         </a>
-        <Table className="w-[700px] mt-[20px] mr-[100px] bg-gray-100 rounded-md">
+        <Table className="w-[650px] mt-[20px] mr-[250px] bg-gray-100 rounded-md">
           <TableCaption>A list of your images.</TableCaption>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[100px] font-bold">IMAGE_ID</TableHead>
-              <TableHead className="font-bold">USER_ID</TableHead>
               <TableHead className="font-bold">TITLE</TableHead>
               <TableHead className="font-bold">FILE_NAME</TableHead>
               <TableHead className="font-bold">IMAGE</TableHead>
@@ -104,8 +102,6 @@ export default function Login() {
           <TableBody>
             {data.map((item) => (
               <TableRow key={item.image_id}>
-                <TableCell className="font-medium">{item.image_id}</TableCell>
-                <TableCell>{item.user_id}</TableCell>
                 <TableCell>{item.title}</TableCell>
                 <TableCell>
                   <a href={`/detail/${item.image_id}`}>{item.file_name}</a>
@@ -113,7 +109,17 @@ export default function Login() {
                 <TableCell>
                   <img src={`${process.env.NEXT_PUBLIC_IMAGE_LINK}/uploads/${item?.file_name}`} alt="image" />
                 </TableCell>
-                <TableCell className="text-right">{item.created_at}</TableCell>
+                <TableCell className="text-right">
+                  {new Date(item?.created_at).toLocaleString('ko-KR', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false,
+                  })}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
