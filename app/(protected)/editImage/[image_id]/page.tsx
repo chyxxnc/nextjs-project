@@ -226,10 +226,62 @@ export default function EditImage() {
     User();
   }, []);
 
+  // edit_images storage에 저장
+  const saveStorage = async (blob: Blob, fileName: string) => {
+    const supabase = createClient();
+    try {
+      const { error: stImgErr } = await supabase.storage.from('edit_images').upload(`uploads/${fileName}`, blob);
+      if (stImgErr) {
+        console.log(stImgErr);
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // 가장 최근 version_number 가져오기
+  const selectVerNum = async () => {
+    const supabase = createClient();
+    try {
+      const { data, error } = await supabase
+        .from('image_versions')
+        .select('version_number')
+        .eq('image_id', image_id)
+        .order('version_number', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) {
+        console.log(error);
+        return 0;
+      }
+      return data?.version_number || 0;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const saveImgToDB = async (newVersion: number, fileName: string) => {
+    try {
+      const supabase = createClient();
+      // image_versions 테이블에 저장
+      const { error: dbImgErr } = await supabase.from('image_versions').insert({
+        image_id: image_id,
+        user_id: userId,
+        version_number: newVersion,
+        file_name: `${fileName}`,
+        file_path: `${process.env.NEXT_PUBLIC_IMAGE_VERSION_LINK}/uploads/${fileName}`,
+        created_at: new Date(),
+      });
+      if (dbImgErr) console.log(dbImgErr);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const editButton = async () => {
     if (!canvas) return;
-
-    const supabase = createClient();
 
     try {
       const objects = canvas.getObjects();
@@ -239,66 +291,49 @@ export default function EditImage() {
         maxY = -Infinity;
 
       objects.forEach((obj) => {
-        if (!obj.visible) return; // 숨겨진 오브젝트 제외
+        if (!obj.visible) return;
         const box = obj.getBoundingRect();
-        minX = Math.min(minX, box.left); // 가장 왼쪽 좌표 찾기
-        minY = Math.min(minY, box.top); // 가장 위쪽 좌표 찾기
-        maxX = Math.max(maxX, box.left + box.width); // 가장 오른쪽 좌표 찾기
-        maxY = Math.max(maxY, box.top + box.height); // 가장 아래쪽 좌표 찾기
+
+        // 이미지 크기 구하기
+        minX = Math.min(minX, box.left);
+        minY = Math.min(minY, box.top);
+        maxX = Math.max(maxX, box.left + box.width);
+        maxY = Math.max(maxY, box.top + box.height);
       });
 
       const width = maxX - minX;
       const height = maxY - minY;
 
-      setTimeout(async () => {
-        const imageDataUrl = canvas?.toDataURL({
-          format: 'png',
-          multiplier: 1,
-          left: minX,
-          top: minY,
-          width: width,
-          height: height,
-        });
+      // 이미지만 추출
+      const imageDataUrl = canvas.toDataURL({
+        format: 'png',
+        multiplier: 1,
+        left: minX,
+        top: minY,
+        width,
+        height,
+      });
 
-        if (!imageDataUrl) console.log('이미지 변환 실패');
-        else {
-          console.log('이미지 변환 성공');
+      if (!imageDataUrl) {
+        console.error('이미지 변환 실패');
+        return;
+      }
 
-          // base64를 blob으로 변환
-          const base64 = imageDataUrl.split(',')[1];
-          const blob = await (await fetch(`data:image/png;base64,${base64}`)).blob();
+      // base64 -> blob 형태로 변환
+      const base64 = imageDataUrl.split(',')[1];
+      const blob = await (await fetch(`data:image/png;base64,${base64}`)).blob();
+      const fileName = `${Date.now()}_image.png`;
 
-          const fileName = `${Date.now()}_image.png`;
+      const uploadStorage = await saveStorage(blob, fileName);
 
-          // edit_images storage에 저장
-          const { data: stImgData, error: stImgErr } = await supabase.storage
-            .from('edit_images')
-            .upload(`uploads/${fileName}`, blob);
-          if (stImgErr) console.log(stImgErr);
-
-          // 가장 최근 version_number 가져오기
-          const { data, error } = await supabase
-            .from('image_versions')
-            .select('version_number')
-            .eq('image_id', image_id)
-            .order('version_number', { ascending: false })
-            .limit(1)
-            .maybeSingle();
-          if (error) console.log(error);
-
-          // image_versions 테이블에 저장
-          const { data: dbImgData, error: dbImgErr } = await supabase.from('image_versions').insert({
-            image_id: image_id,
-            user_id: userId,
-            version_number: data?.version_number + 1,
-            file_name: `${fileName}`,
-            file_path: `${process.env.NEXT_PUBLIC_IMAGE_VERSION_LINK}/uploads/${fileName}`,
-            created_at: new Date(),
-          });
-          if (dbImgErr) console.log(dbImgErr);
-        }
-        router.push(`/detail/${image_id}`);
-      }, 2000);
+      if (uploadStorage) {
+        const lastVersion = await selectVerNum();
+        await saveImgToDB(lastVersion + 1, fileName);
+      } else {
+        console.error('이미지 DB 업로드 실패');
+        return;
+      }
+      router.push(`/detail/${image_id}`);
     } catch (error) {
       console.log(error);
     }
