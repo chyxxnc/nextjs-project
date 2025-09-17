@@ -32,28 +32,31 @@ export default function AddImage() {
     User();
   }, []);
 
-  // 데이터 스토리지와 디비에 저장
-  const saveImageToStorage = async () => {
-    if (!file || !title) {
-      alert('파일을 선택하거나 제목을 입력하세요');
-      return;
-    }
-
-    const fileName = `${Date.now()}_${file.name}`; // 파일명
-
+  // 이미지 스토리지 및 DB에 저장
+  const saveImage = async ({
+    file,
+    fileName,
+    userId,
+    title,
+  }: {
+    file: File | Blob;
+    fileName: string;
+    userId: string;
+    title: string;
+  }) => {
     try {
       // 이미지를 supabase storage에 저장
       const { data, error } = await supabase.storage.from('images').upload(`uploads/${fileName}`, file);
 
       if (!data || error) {
         alert('업로드 실패: ' + error.message);
-        return;
+        return false;
       } else {
         alert('업로드 성공');
       }
     } catch (error) {
       console.log(error);
-      return;
+      return false;
     }
 
     // images DB 테이블에 저장
@@ -70,7 +73,7 @@ export default function AddImage() {
 
       if (imgDBErr) {
         console.log('데이터 삽입 실패: ', imgDBErr);
-        return;
+        return false;
       }
 
       const imageID = imgDBData[0].image_id;
@@ -89,6 +92,54 @@ export default function AddImage() {
         console.log('데이터 삽입 실패: ' + imgverDBError);
       }
       router.push('/home');
+      return true;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // local에서 선택한 사진
+  const saveLocalImage = async () => {
+    if (!file || !title) {
+      alert('파일을 선택하거나 제목을 입력하세요');
+      return;
+    }
+
+    const fileName = `${Date.now()}_${file.name}`; // 파일명
+
+    try {
+      const save = await saveImage({ file, fileName, userId, title });
+      if (!save) {
+        console.log('업로드 실패');
+      } else {
+        console.log('업로드 성공');
+        router.push('/home');
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // ai로 생성한 사진
+  const saveAiImage = async () => {
+    if (!imgSrc || !title) {
+      alert('프롬프트를 입력해 이미지를 생성하거나 제목을 입력하세요');
+      return;
+    }
+
+    try {
+      const response = await fetch(imgSrc);
+      const blob = await response.blob();
+      const fileName = `${Date.now()}_ai_image.png`;
+
+      const save = await saveImage({ file: blob, fileName, userId, title });
+
+      if (!save) {
+        console.log('업로드 실패');
+      } else {
+        console.log('업로드 성공');
+        router.push('/home');
+      }
     } catch (error) {
       console.log(error);
     }
@@ -120,7 +171,7 @@ export default function AddImage() {
     }
   };
 
-  // 이미지 미리 보여주기
+  // 로컬 이미지 미리 보여주기
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -163,7 +214,7 @@ export default function AddImage() {
             <Input className="w-full" type="file" accept="image/*" onChange={handleImageChange} />
             {imgSrc && <img src={imgSrc} alt="미리보기" className="w-full" />}
 
-            <Button className="w-full font-semibold py-6" onClick={saveImageToStorage}>
+            <Button className="w-full font-semibold py-6" onClick={saveLocalImage}>
               ADD
             </Button>
           </div>
@@ -193,7 +244,9 @@ export default function AddImage() {
               <Button className="w-[80%] font-semibold py-6" onClick={generateImage}>
                 GENERATE
               </Button>
-              <Button className="w-[80%] font-semibold py-6">ADD</Button>
+              <Button className="w-[80%] font-semibold py-6" onClick={saveAiImage}>
+                ADD
+              </Button>
             </div>
           </div>
         )}
