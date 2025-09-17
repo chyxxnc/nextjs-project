@@ -15,6 +15,7 @@ export default function AddImage() {
   const [file, setFile] = useState<File | null>(null);
   const [userId, setUserId] = useState('');
   const [title, setTitle] = useState('');
+  const [aiPrompt, setAiPrompt] = useState('');
   const [buttonUI, setButtonUI] = useState<'local' | 'ai'>('local');
 
   // 지금 로그인 되어있는 사람의 UID 가져오기
@@ -33,8 +34,8 @@ export default function AddImage() {
 
   // 데이터 스토리지와 디비에 저장
   const saveImageToStorage = async () => {
-    if (!file) {
-      alert('파일을 선택하세요');
+    if (!file || !title) {
+      alert('파일을 선택하거나 제목을 입력하세요');
       return;
     }
 
@@ -93,6 +94,32 @@ export default function AddImage() {
     }
   };
 
+  // ai가 생성한 이미지 가져오기
+  const generateImage = async () => {
+    if (!aiPrompt) {
+      console.log('프롬프트가 없음');
+      alert('프롬프트를 입력하세요');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/pollinations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt: aiPrompt }),
+      });
+
+      const data = await response.json();
+      setImgSrc(data.imageUrl);
+      if (!data) console.log('이미지 가져오기 실패');
+      else console.log('이미지 가져오기 성공');
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   // 이미지 미리 보여주기
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -144,20 +171,30 @@ export default function AddImage() {
         {buttonUI === 'ai' && (
           <div className="flex flex-col items-center space-y-4 px-10">
             <CardContent className="text-center text-sm leading-[40px]">
-              <p>생성하고 싶은 이미지의 프롬프트를 입력하세요</p>
+              <p>생성하고 싶은 이미지의 프롬프트와 제목을 입력하세요</p>
             </CardContent>
             <Input
               className="w-full"
               type="text"
-              placeholder="프롬프트를 입력하세요"
+              placeholder="제목을 입력하세요"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             ></Input>
+            <Input
+              className="w-full"
+              type="text"
+              placeholder="프롬프트를 입력하세요"
+              value={aiPrompt}
+              onChange={(e) => setAiPrompt(e.target.value)}
+            ></Input>
             {imgSrc && <img src={imgSrc} alt="미리보기" className="w-full" />}
 
-            <Button className="w-full font-semibold py-6" onClick={saveImageToStorage}>
-              ADD
-            </Button>
+            <div className="flex space-x-2 justify-center">
+              <Button className="w-[80%] font-semibold py-6" onClick={generateImage}>
+                GENERATE
+              </Button>
+              <Button className="w-[80%] font-semibold py-6">ADD</Button>
+            </div>
           </div>
         )}
         <a href="/home" className="text-center text-sm">
