@@ -6,7 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import { redirect, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 export default function AddImage() {
   const supabase = createClient();
@@ -15,6 +15,7 @@ export default function AddImage() {
   const [file, setFile] = useState<File | null>(null);
   const [userId, setUserId] = useState('');
   const [title, setTitle] = useState('');
+  const [buttonUI, setButtonUI] = useState<'local' | 'ai'>('local');
 
   // 지금 로그인 되어있는 사람의 UID 가져오기
   useEffect(() => {
@@ -110,26 +111,55 @@ export default function AddImage() {
       <Card className="w-[550px]">
         <CardHeader>
           <CardTitle className="text-center text-2xl pt-10">ADD IMAGE</CardTitle>
-          <CardContent className="text-center text-sm leading-[45px]">
-            <p>이미지와 제목을 추가해주세요</p>
-          </CardContent>
+          <div className="text-center">
+            <Button variant="link" onClick={() => setButtonUI('local')} className="mr-[-15px]">
+              local에서 사진찾기
+            </Button>
+            <Button variant="link" onClick={() => setButtonUI('ai')}>
+              ai로 사진 생성하기
+            </Button>
+          </div>
         </CardHeader>
 
-        <div className="flex flex-col items-center space-y-4 px-10">
-          <Input
-            className="w-full"
-            type="text"
-            placeholder="제목을 입력하세요"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          ></Input>
-          <Input className="w-full" type="file" accept="image/*" onChange={handleImageChange} />
-          {imgSrc && <img src={imgSrc} alt="미리보기" className="w-full" />}
+        {buttonUI === 'local' && (
+          <div className="flex flex-col items-center space-y-4 px-10">
+            <CardContent className="text-center text-sm leading-[40px]">
+              <p>이미지와 제목을 추가해주세요</p>
+            </CardContent>
+            <Input
+              className="w-full"
+              type="text"
+              placeholder="제목을 입력하세요"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            ></Input>
+            <Input className="w-full" type="file" accept="image/*" onChange={handleImageChange} />
+            {imgSrc && <img src={imgSrc} alt="미리보기" className="w-full" />}
 
-          <Button className="w-full font-semibold py-6" onClick={saveImageToStorage}>
-            ADD
-          </Button>
-        </div>
+            <Button className="w-full font-semibold py-6" onClick={saveImageToStorage}>
+              ADD
+            </Button>
+          </div>
+        )}
+        {buttonUI === 'ai' && (
+          <div className="flex flex-col items-center space-y-4 px-10">
+            <CardContent className="text-center text-sm leading-[40px]">
+              <p>생성하고 싶은 이미지의 프롬프트를 입력하세요</p>
+            </CardContent>
+            <Input
+              className="w-full"
+              type="text"
+              placeholder="프롬프트를 입력하세요"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            ></Input>
+            {imgSrc && <img src={imgSrc} alt="미리보기" className="w-full" />}
+
+            <Button className="w-full font-semibold py-6" onClick={saveImageToStorage}>
+              ADD
+            </Button>
+          </div>
+        )}
         <a href="/home" className="text-center text-sm">
           돌아가기
         </a>
