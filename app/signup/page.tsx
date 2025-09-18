@@ -13,7 +13,7 @@ export default function Signup() {
   const [password, setPassword] = useState('');
   const supabase = createClient();
 
-  const test = async () => {
+  const signUp = async () => {
     console.log(email + ' ' + password);
 
     const { data, error } = await supabase.auth.signUp({ email, password });
@@ -55,7 +55,7 @@ export default function Signup() {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <Button onClick={test} className="w-2/3 mx-auto font-semibold py-6">
+        <Button onClick={signUp} className="w-2/3 mx-auto font-semibold py-6">
           SIGN UP
         </Button>
       </Card>

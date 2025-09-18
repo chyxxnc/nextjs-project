@@ -219,6 +219,7 @@ export default function AddImage() {
             </Button>
           </div>
         )}
+
         {buttonUI === 'ai' && (
           <div className="flex flex-col items-center space-y-4 px-10">
             <CardContent className="text-center text-sm leading-[40px]">
@@ -239,17 +240,17 @@ export default function AddImage() {
               onChange={(e) => setAiPrompt(e.target.value)}
             ></Input>
             {imgSrc && <img src={imgSrc} alt="미리보기" className="w-full" />}
-
             <div className="flex space-x-2 justify-center">
-              <Button className="w-[80%] font-semibold py-6" onClick={generateImage}>
+              <Button className="w-[125%] font-semibold py-6" onClick={generateImage}>
                 GENERATE
               </Button>
-              <Button className="w-[80%] font-semibold py-6" onClick={saveAiImage}>
+              <Button className="w-[125%] font-semibold py-6" onClick={saveAiImage}>
                 ADD
               </Button>
             </div>
           </div>
         )}
+
         <a href="/home" className="text-center text-sm">
           돌아가기
         </a>

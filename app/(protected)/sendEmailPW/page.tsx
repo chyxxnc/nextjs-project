@@ -12,7 +12,7 @@ export default function SendEmailPW() {
   const [email, setEmail] = useState('');
   const supabase = createClient();
 
-  const test = async () => {
+  const sendEmail = async () => {
     console.log(email);
 
     // api 요청
@@ -51,7 +51,7 @@ export default function SendEmailPW() {
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
-        <Button onClick={test} className="w-2/3 mx-auto font-semibold py-6">
+        <Button onClick={sendEmail} className="w-2/3 mx-auto font-semibold py-6">
           UPDATE
         </Button>
       </Card>

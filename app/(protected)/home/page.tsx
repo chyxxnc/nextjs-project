@@ -26,6 +26,7 @@ export default function Login() {
     images();
   }, []);
 
+  // 사용자 이메일 (정보) 가져오기
   const user = async () => {
     try {
       const {
@@ -43,6 +44,7 @@ export default function Login() {
     }
   };
 
+  // 이미지 가져오기
   const images = async () => {
     try {
       const { data: imagesData, error: imagesErr } = await supabase.from('images').select('*');
@@ -75,7 +77,7 @@ export default function Login() {
   return (
     <main className="flex justify-between p-30 min-h-screen bg-pink-100">
       <div className="text-start">
-        <h1 className="font-semibold text-[50px] pl-30 pt-20">Login Successful !</h1>
+        <h1 className="font-semibold text-[50px] pl-30 pt-20">Login Successful!</h1>
         <p className="pl-30 text-[15px] leading-[35px]">{email}님 반값습니다!</p>
         <a href="/sendEmailPW" className="text-center text-sm pl-30">
           비밀번호 변경하기

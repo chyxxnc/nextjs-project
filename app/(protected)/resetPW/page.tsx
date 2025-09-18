@@ -12,10 +12,9 @@ export default function Updatepw() {
   const [password, setPassword] = useState('');
   const supabase = createClient();
 
-  const test = async () => {
+  const resetPW = async () => {
     console.log(password);
 
-    // api 요청
     const { data, error } = await supabase.auth.updateUser({
       password: password,
     });
@@ -50,7 +49,7 @@ export default function Updatepw() {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <Button onClick={test} className="w-2/3 mx-auto font-semibold py-6">
+        <Button onClick={resetPW} className="w-2/3 mx-auto font-semibold py-6">
           UPDATE
         </Button>
       </Card>

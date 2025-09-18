@@ -13,7 +13,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const supabase = createClient();
 
-  const test = async () => {
+  const login = async () => {
     console.log(email + ' ' + password);
 
     // api 요청
@@ -73,7 +73,7 @@ export default function Login() {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <Button onClick={test} className="w-2/3 mx-auto font-semibold py-6">
+        <Button onClick={login} className="w-2/3 mx-auto font-semibold py-6">
           LOGIN
         </Button>
         <a href="/signup" className="text-center text-sm">
